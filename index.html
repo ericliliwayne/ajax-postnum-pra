@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"
+        integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.bundle.min.js"
+        integrity="sha512-i9cEfJwUwViEPFKdC1enz4ZRGBj8YQo6QByFTF92YXHi7waCqyexvRD75S5NVTsSiTv7rKWqG9Y5eFxmRsOn0A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css"
+        integrity="sha512-SbiR/eusphKoMVVXysTKG/7VseWii+Y3FdHrt0EpKgpToZeemhqHeZeLWLhJutz/2ut2Vw1uQEj2MbRF+TVBUA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>動態下拉式選單練習 - 查詢縣市地區郵遞區號</title>
+</head>
+
+<body>
+    <div class="container text-center">
+        <div class="row text-bg-info p-3 mt-1 mb-5">
+            <div class="col align-self-center">
+                <h1>動態下拉式選單練習 - 查詢縣市地區郵遞區號</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col align-self-start">
+                <select class="form-select form-select-lg mb-3 shadow p-3 mb-5 bg-body rounded" aria-label="Default select example" id="county">
+                    <option selected>請選擇縣市</option>
+                      
+                    </select>
+            </div>
+            <div class="col align-self-center">
+                <select class="form-select form-select-lg mb-3 shadow p-3 mb-5 bg-body rounded" aria-label="Default select example" id="city">
+                    <option selected>請選擇地區</option>
+                      
+                    </select>
+                </div>
+            <!-- <div class="col align-self-end">
+                <select class="form-select form-select-lg mb-3 shadow p-3 mb-5 bg-body rounded" aria-label="Default select example" id="area">
+                      <option selected>請選擇里別</option>
+                      
+                </select>
+            </div> -->
+        </div>
+        <div class="row col-3 mt-3 position-absolute top-25 start-50 translate-middle">
+                <button type="button" class="btn btn-outline-dark btn-lg" id="btn">點我查詢縣市郵遞區號</button>
+        </div>
+        <div class="row col-6 position-absolute top-50 start-50 translate-middle">
+            <div class="align-self-center">
+                <div id="result"></div>
+            </div>
+        </div>
+    </div>
+        
+        
+      <script>
+        $(document).ready(function() {
+            let def = '<option selected>請選擇縣市</option>';
+            $.post("./api/county.php",{},(string)=>{ //進入網頁先撈取縣市資料
+                //console.log(string);
+                $('#county').html(def+string);
+            });
+        });
+        $(document).on('change','#county',function(){
+            let county = $('#county').val(); //取得選項的value(縣市id)
+            let def2 = '<option selected>請選擇地區</option>';
+            //console.log(county);
+            $.post("./api/api.php",{county},(res)=>{ //將id值帶入後台做條件篩選後回傳資料到前台顯示在地區及里別的選項上
+                //console.log(res);
+                $('#city').html(def2+res);
+            });
+        });
+        $(document).on('click','#btn',function(){
+            let city = $('#city').val(); //取得選項的value(地區值)
+            let countyname = "您所選擇的縣市為 : "+$('#county option:selected').html()+"<br>"; //取得選項的值(縣市)
+            let cityname = "您所選擇的地區為 : "+$('#city option:selected').html()+"<br>"; //取得選項的值(地區)
+            let county = $('#county').val();//取得選項的value(縣市id)
+            //console.log(county+"::"+city);
+            $.post("./api/result.php",{county,city},(res)=>{ //將id值帶入後台做條件篩選後回傳資料到前台顯示在地區及里別的選項上
+                //console.log(countyname+cityname+res);
+                //console.log(county+city);
+                if(county=="請選擇縣市"){
+                    alert('請選擇縣市!!');
+                }else if(city=="請選擇地區"){
+                    alert('請選擇地區!!');
+                }else{
+                    $('#result').html(countyname+cityname+res).css("font-size",'30px');
+                }
+            });
+        });
+      </script>
+</body>
+
+</html>
